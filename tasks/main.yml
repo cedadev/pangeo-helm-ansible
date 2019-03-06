@@ -17,7 +17,9 @@
 
 - name: Install/upgrade Pangeo
   command: >
-    helm upgrade --install --force --recreate-pods pangeohub pangeo/pangeo
+    helm upgrade pangeohub pangeo/pangeo
+       --install --force --recreate-pods
+       --namespace pangeohub
        --values /root/helm/secret_config.yaml
        --values /root/helm/jupyter_config.yaml
   when: pangeo_installed | bool
