@@ -1,0 +1,29 @@
+---
+- name: Add Pangeo repo
+  command: helm repo add pangeo https://pangeo-data.github.io/helm-chart/
+
+- name: Update Pangeo repo
+  command: helm repo update
+
+- name: Copy Helm jupyter config to host
+  template:
+    src: jupyter_config.yaml.j2
+    dest: /root/helm/jupyter_config.yaml
+
+- name: Copy Helm jupyter config to host
+  template:
+    src: secret_config.yaml.j2
+    dest: /root/helm/secret_config.yaml
+
+- name: Install/upgrade Pangeo
+  command: >
+    helm upgrade --install --force --recreate-pods pangeohub pangeo/pangeo
+       --values /root/helm/secret_config.yaml
+       --values /root/helm/jupyter_config.yaml
+  when: pangeo_installed | bool
+
+- name: Uninstall pangeo
+  command: >
+    helm delete --purge pangeohub
+  when: not pangeo_installed | bool
+...
