@@ -17,15 +17,15 @@
 
 - name: Install/upgrade Pangeo
   command: >
-    helm upgrade pangeohub pangeo/pangeo
+    helm upgrade {{ pangeo_namespace }} pangeo/pangeo
        --install --force --recreate-pods
-       --namespace pangeohub
+       --namespace {{ pangeo_namespace }} 
        --values /root/helm/secret_config.yaml
        --values /root/helm/jupyter_config.yaml
   when: pangeo_enabled | bool
 
 - name: Uninstall pangeo
   command: >
-    helm delete --purge pangeohub
+    helm delete --purge {{ pangeo_namespace }}
   when: not pangeo_enabled | bool
 ...
