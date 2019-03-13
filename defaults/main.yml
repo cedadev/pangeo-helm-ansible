@@ -1,0 +1,7 @@
+---
+pangeo_enabled: true
+pangeo_hosts: [ "" ]
+pangeo_password:
+pangeo_users: [ ]
+pangeo_admin_users: [ ]
+...

@@ -52,4 +52,11 @@ jupyterhub:
   ingress:
     enabled: true
     hosts:
-      - ""
+{% for host in pangeo_hosts %}
+      - {{ host }}
+{% endfor %}
+    tls:
+      - hosts:
+{% for host in pangeo_hosts %}
+          - {{ host }}
+{% endfor %}

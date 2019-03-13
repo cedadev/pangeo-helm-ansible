@@ -22,10 +22,10 @@
        --namespace pangeohub
        --values /root/helm/secret_config.yaml
        --values /root/helm/jupyter_config.yaml
-  when: pangeo_installed | bool
+  when: pangeo_enabled | bool
 
 - name: Uninstall pangeo
   command: >
     helm delete --purge pangeohub
-  when: not pangeo_installed | bool
+  when: not pangeo_enabled | bool
 ...
