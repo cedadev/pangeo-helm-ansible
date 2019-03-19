@@ -1,31 +1,72 @@
 ---
-- name: Add Pangeo repo
-  command: helm repo add pangeo https://pangeo-data.github.io/helm-chart/
-
-- name: Update Pangeo repo
-  command: helm repo update
-
-- name: Copy Helm jupyter config to host
+- name: "Copy Helm {{ item }} to host"
   template:
-    src: jupyter_config.yaml.j2
-    dest: /root/helm/jupyter_config.yaml
+    src: "{{ item }}.yaml.j2"
+    dest: "/root/helm/{{ item }}.yaml"
+  with_items:
+    - jupyter_config
+    - secret_config
+  register: config
+  when: pangeo_state == "present"
 
-- name: Copy Helm jupyter config to host
-  template:
-    src: secret_config.yaml.j2
-    dest: /root/helm/secret_config.yaml
+- name: Check if the chart exists
+  command: helm status {{ pangeo_namespace }}
+  register: output
+  changed_when: false
+  ignore_errors: true
 
-- name: Install/upgrade Pangeo
+- block:
+
+    - name: Add Pangeo repo
+      command: helm repo add pangeo https://pangeo-data.github.io/helm-chart/
+      when: output.stdout
+
+    - name: Update Pangeo repo
+      command: helm repo update
+
+    - name: Install Pangeo
+      command: >
+        helm install pangeo/pangeo \
+           --namespace={{ pangeo_namespace }} \
+           --name={{ pangeo_namespace }} \
+           --values /root/helm/secret_config.yaml \
+           --values /root/helm/jupyter_config.yaml \
+           --version ${VERSION}
+
+  when:
+    - output.rc == 1
+    - output.stderr is search('not found')
+    - pangeo_state == 'present'
+
+- name: Upgrade Pangeo
   command: >
     helm upgrade {{ pangeo_namespace }} pangeo/pangeo
-       --install --force --recreate-pods
+       --force --recreate-pods
        --namespace {{ pangeo_namespace }} 
        --values /root/helm/secret_config.yaml
        --values /root/helm/jupyter_config.yaml
-  when: pangeo_enabled | bool
+       --version {{ pangeo_version }}
+  when:
+    - output.rc == 0
+    - pangeo_state == 'present'
+    - pangeo_upgrade | bool or config[0].changed or config[1].changed
 
-- name: Uninstall pangeo
-  command: >
-    helm delete --purge {{ pangeo_namespace }}
-  when: not pangeo_enabled | bool
+- block:
+
+    - name: "Delete Helm manifest for {{ item }}"
+      file:
+        path: "/root/helm/{{ item }}.yaml"
+        state: absent
+      with_items:
+        - jupyter_config
+        - secret_config
+
+    - name: Uninstall Pangeo
+      command: >
+        helm delete --purge {{ pangeo_namespace }}
+
+  when:
+    - output.rc == 0
+    - pangeo_state == 'absent'
+
 ...

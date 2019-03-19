@@ -1,8 +1,14 @@
 ---
-pangeo_enabled: true
-pangeo_hosts: [ "" ]
+pangeo_state: present
+pangeo_upgrade: false
+pangeo_hosts: [""]
 pangeo_password:
-pangeo_users: [ ]
-pangeo_admin_users: [ ]
+pangeo_users: []
+pangeo_admin_users: []
 pangeo_namespace: pangeohub
+pangeo_storage_class: standard #nfs-client
+pangeo_storage_capacity: 10G
+pangeo_image_name: pangeo/pangeo-notebook
+pangeo_image_tag: 2019.03.12
+pangeo_version: v0.1.1-c02878a
 ...

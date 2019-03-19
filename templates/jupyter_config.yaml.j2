@@ -3,17 +3,14 @@
 jupyterhub:
   singleuser:
     image:
-      name: pangeo/pangeo-notebook
-      tag: 2019.01.31
+      name: {{ pangeo_image_name }}
+      tag: {{ pangeo_image_tag }}
     startTimeout: 1000
-    extraEnv:
-      EXTRA_PIP_PACKAGES: >-
-      GCSFUSE_BUCKET: pangeo-data
     storage:
       type: dynamic
-      capacity: 10G
+      capacity: {{ pangeo_storage_capacity }}
       dynamic:
-        storageClass: standard #nfs-client
+        storageClass: {{ pangeo_storage_class }}
     cloudMetadata:
       enabled: true
     cpu:
@@ -28,7 +25,7 @@ jupyterhub:
       type: sqlite-pvc
       pvc:
         storage: 1G
-        storageClassName: standard #nfs-client
+        storageClassName: {{ pangeo_storage_class }}
     extraConfig:
       customPodHook: |
         from kubernetes import client
