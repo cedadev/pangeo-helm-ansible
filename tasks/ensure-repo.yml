@@ -1,0 +1,7 @@
+---
+- name: Add Pangeo repo
+  command: helm repo add pangeo https://pangeo-data.github.io/helm-chart/
+
+- name: Update Pangeo repo
+  command: helm repo update
+...

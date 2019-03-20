@@ -1,4 +1,5 @@
 ---
+
 - name: "Copy Helm {{ item }} to host"
   template:
     src: "{{ item }}.yaml.j2"
@@ -17,12 +18,7 @@
 
 - block:
 
-    - name: Add Pangeo repo
-      command: helm repo add pangeo https://pangeo-data.github.io/helm-chart/
-      when: output.stdout
-
-    - name: Update Pangeo repo
-      command: helm repo update
+    - import_tasks: ensure-repo.yml
 
     - name: Install Pangeo
       command: >
@@ -31,21 +27,26 @@
            --name={{ pangeo_namespace }} \
            --values /root/helm/secret_config.yaml \
            --values /root/helm/jupyter_config.yaml \
-           --version ${VERSION}
+           --version {{ pangeo_version }}
 
   when:
     - output.rc == 1
     - output.stderr is search('not found')
     - pangeo_state == 'present'
 
-- name: Upgrade Pangeo
-  command: >
-    helm upgrade {{ pangeo_namespace }} pangeo/pangeo
-       --force --recreate-pods
-       --namespace {{ pangeo_namespace }} 
-       --values /root/helm/secret_config.yaml
-       --values /root/helm/jupyter_config.yaml
-       --version {{ pangeo_version }}
+- block:
+
+    - import_tasks: ensure-repo.yml
+
+    - name: Upgrade Pangeo if pangeo_upgrade is true or config has changed
+      command: >
+        helm upgrade {{ pangeo_namespace }} pangeo/pangeo
+           --force --recreate-pods
+           --namespace {{ pangeo_namespace }} 
+           --values /root/helm/secret_config.yaml
+           --values /root/helm/jupyter_config.yaml
+           --version {{ pangeo_version }}
+
   when:
     - output.rc == 0
     - pangeo_state == 'present'
@@ -62,8 +63,7 @@
         - secret_config
 
     - name: Uninstall Pangeo
-      command: >
-        helm delete --purge {{ pangeo_namespace }}
+      command: helm delete --purge {{ pangeo_namespace }}
 
   when:
     - output.rc == 0
