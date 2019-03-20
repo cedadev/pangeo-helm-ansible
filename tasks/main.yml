@@ -1,13 +1,19 @@
 ---
 
-- name: "Copy Helm {{ item }} to host"
-  template:
-    src: "{{ item }}.yaml.j2"
-    dest: "/root/helm/{{ item }}.yaml"
-  with_items:
-    - jupyter_config
-    - secret_config
-  register: config
+- block:
+
+    - import_tasks: secret-token.yml
+
+    - name: "Copy Helm {{ item }} to host"
+      template:
+        src: "{{ item }}.yaml.j2"
+        dest: "/root/helm/{{ item }}.yaml"
+        mode: 0600
+      with_items:
+        - jupyter_config
+        - secret_config
+      register: config
+
   when: pangeo_state == "present"
 
 - name: Check if the chart exists
@@ -50,7 +56,7 @@
   when:
     - output.rc == 0
     - pangeo_state == 'present'
-    - pangeo_upgrade | bool or config[0].changed or config[1].changed
+    - pangeo_upgrade | bool or config is changed
 
 - block:
 
