@@ -4,7 +4,7 @@
 
     - import_tasks: secret-token.yml
 
-    - name: "Copy Helm {{ item }} to host"
+    - name: "Copy Helm config to host"
       template:
         src: "{{ item }}.yaml.j2"
         dest: "/root/helm/{{ item }}.yaml"
@@ -17,10 +17,14 @@
   when: pangeo_state == "present"
 
 - name: Check if the chart exists
-  command: helm status {{ pangeo_namespace }}
+  command: "helm ls {{ pangeo_namespace }} --output json"
   register: output
   changed_when: false
-  ignore_errors: true
+
+- name: Set fact about the output
+  set_fact:
+    current_release: "{{ (output.stdout | from_json).get('Releases', [{}]) | first }}"
+- debug: var=current_release
 
 - block:
 
@@ -36,8 +40,7 @@
            --version {{ pangeo_version }}
 
   when:
-    - output.rc == 1
-    - output.stderr is search('not found')
+    - current_release.get('Status', '') != 'DEPLOYED'
     - pangeo_state == 'present'
 
 - block:
@@ -54,9 +57,9 @@
            --version {{ pangeo_version }}
 
   when:
-    - output.rc == 0
+    - current_release.get('Chart', '') != 'pangeo-' + pangeo_version or config is changed
+    - current_release.get('Status', '') == 'DEPLOYED'
     - pangeo_state == 'present'
-    - pangeo_upgrade | bool or config is changed
 
 - block:
 

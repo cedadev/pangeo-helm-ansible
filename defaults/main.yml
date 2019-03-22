@@ -1,6 +1,5 @@
 ---
 pangeo_state: present
-pangeo_upgrade: false
 pangeo_hosts: [""]
 pangeo_password:
 pangeo_users: []
