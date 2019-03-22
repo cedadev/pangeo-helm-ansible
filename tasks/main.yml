@@ -23,8 +23,7 @@
 
 - name: Set fact about the output
   set_fact:
-    current_release: "{{ (output.stdout | from_json).get('Releases', [{}]) | first }}"
-- debug: var=current_release
+    current_release: "{{ ({} if output.stdout == '' else (output.stdout | from_json)).get('Releases', [{}]) | first }}"
 
 - block:
 
