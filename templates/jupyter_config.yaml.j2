@@ -1,0 +1,59 @@
+# file: jupyter_config.yaml
+
+jupyterhub:
+  singleuser:
+    image:
+      name: {{ pangeo_image_name }}
+      tag: {{ pangeo_image_tag }}
+    startTimeout: 1000
+    storage:
+      type: dynamic
+      capacity: {{ pangeo_storage_capacity }}
+      dynamic:
+        storageClass: {{ pangeo_storage_class }}
+    cloudMetadata:
+      enabled: true
+    cpu:
+      limit: 4
+      guarantee: 1
+    memory:
+      limit: 14G
+      guarantee: 4G
+
+  hub:
+    db:
+      type: sqlite-pvc
+      pvc:
+        storage: 1G
+        storageClassName: {{ pangeo_storage_class }}
+    extraConfig:
+      customPodHook: |
+        from kubernetes import client
+        def modify_pod_hook(spawner, pod):
+            pod.spec.containers[0].security_context = client.V1SecurityContext(
+                privileged=True,
+                capabilities=client.V1Capabilities(
+                    add=['SYS_ADMIN']
+                )
+            )
+            return pod
+        c.KubeSpawner.modify_pod_hook = modify_pod_hook
+  cull:
+    enabled: true
+    users: false
+    timeout: 1200
+    every: 600
+
+  # this section specifies the IP address for pangeo.pydata.org
+  # remove or change for a custom cluster
+  ingress:
+    enabled: true
+    hosts:
+{% for host in pangeo_hosts %}
+      - {{ host }}
+{% endfor %}
+    tls:
+      - hosts:
+{% for host in pangeo_hosts %}
+          - {{ host }}
+{% endfor %}
