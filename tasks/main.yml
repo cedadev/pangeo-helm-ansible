@@ -66,7 +66,7 @@
 
 - block:
 
-    - name: "Delete Helm manifest for {{ item }}"
+    - name: "Delete Helm manifests"
       file:
         path: "/root/helm/{{ item }}.yaml"
         state: absent
@@ -78,7 +78,7 @@
       command: helm delete --purge {{ pangeo_namespace }}
 
   when:
-    - output.rc == 0
+    - current_release.get('Status', '') == 'DEPLOYED'
     - pangeo_state == 'absent'
 
 ...

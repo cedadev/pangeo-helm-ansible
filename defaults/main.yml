@@ -9,6 +9,6 @@ pangeo_storage_class: standard #nfs-client
 pangeo_storage_capacity: 10G
 pangeo_image_name: pangeo/pangeo-notebook
 pangeo_image_tag: 2019.03.12
-pangeo_version: v0.1.1-c02878a
+pangeo_version: 19.03.05
 pangeo_secret_token: "{{ ansible_local.pangeo_secret_token }}"
 ...
