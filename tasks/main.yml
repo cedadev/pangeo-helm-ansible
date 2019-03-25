@@ -18,12 +18,16 @@
 
 - name: Check if the chart exists
   command: "helm ls {{ pangeo_namespace }} --output json"
-  register: output
+  register: cmd_output
   changed_when: false
 
-- name: Set fact about the output
+- name: Convert output to json
   set_fact:
-    current_release: "{{ ({} if output.stdout == '' else (output.stdout | from_json)).get('Releases', [{}]) | first }}"
+    output: "{{ (cmd_output.stdout or '{\"Releases\":[{}]}') | from_json }}"
+
+- name: Get the current release
+  set_fact:
+    current_release: "{{ output | json_query('Releases[0]') }}"
 
 - block:
 

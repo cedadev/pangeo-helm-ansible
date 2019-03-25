@@ -1,0 +1,2 @@
+[kube-masters]
+kube-master ansible_host=192.171.139.249 ansible_user=centos
