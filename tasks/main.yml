@@ -35,7 +35,7 @@
 
     - name: Install Pangeo
       command: >
-        helm install pangeo/pangeo \
+        helm install pangeo/pangeo --wait \
            --namespace={{ pangeo_namespace }} \
            --name={{ pangeo_namespace }} \
            --values /root/helm/secret_config.yaml \
@@ -53,7 +53,7 @@
     - name: Upgrade Pangeo if pangeo_upgrade is true or config has changed
       command: >
         helm upgrade {{ pangeo_namespace }} pangeo/pangeo
-           --force --recreate-pods
+           --force --recreate-pods --wait
            --namespace {{ pangeo_namespace }} 
            --values /root/helm/secret_config.yaml
            --values /root/helm/jupyter_config.yaml
