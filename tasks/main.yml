@@ -35,11 +35,11 @@
 
     - name: Install Pangeo
       command: >
-        helm install pangeo/pangeo --wait \
-           --namespace={{ pangeo_namespace }} \
-           --name={{ pangeo_namespace }} \
-           --values /root/helm/secret_config.yaml \
-           --values /root/helm/jupyter_config.yaml \
+        helm install pangeo/pangeo --wait
+           --namespace={{ pangeo_namespace }}
+           --name={{ pangeo_namespace }}
+           --values /root/helm/secret_config.yaml
+           --values /root/helm/jupyter_config.yaml
            --version {{ pangeo_version }}
 
   when:
