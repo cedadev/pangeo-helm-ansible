@@ -1,8 +1,8 @@
 - hosts: kube-masters
   become: yes
   vars:
-    pangeo_hosts: [ "pangeo.kgz.sh" ]
-    pangeo_users: [ "admin", "brtknr" ]
+    pangeo_hosts: [ '""' ]
+    pangeo_users: [ "admin" ]
     pangeo_admin_users: [ "admin" ]
     pangeo_password: secretnomore
   roles:

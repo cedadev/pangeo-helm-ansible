@@ -54,6 +54,6 @@ jupyterhub:
 {% endfor %}
     tls:
       - hosts:
-{% for host in pangeo_hosts %}
+{% for host in pangeo_hosts | difference(["''", '""']) %}
           - {{ host }}
 {% endfor %}
