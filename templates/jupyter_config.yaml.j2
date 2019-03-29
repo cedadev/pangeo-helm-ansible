@@ -44,6 +44,10 @@ jupyterhub:
     timeout: 1200
     every: 600
 
+  proxy:
+    service:
+        type: ClusterIP
+
   # this section specifies the IP address for pangeo.pydata.org
   # remove or change for a custom cluster
   ingress:
